@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+#if canImport(UIKit)
+import UIKit
+#endif
+
 public enum ConfettiType:CaseIterable, Hashable {
     
     public enum Shape {
@@ -21,6 +25,10 @@ public enum ConfettiType:CaseIterable, Hashable {
     case text(String)
     case sfSymbol(symbolName: String)
     case image(String)
+    
+#if canImport(UIKit)
+    case uiImage(UIImage)
+#endif
     
     public var view:AnyView{
         switch self {
@@ -38,6 +46,10 @@ public enum ConfettiType:CaseIterable, Hashable {
             return AnyView(Image(systemName: symbolName))
         case .image(let image):
             return AnyView(Image(image).resizable())
+#if canImport(UIKit)
+        case .uiImage(let image):
+            return AnyView(Image(uiImage: image).resizable() )
+#endif
         default:
             return AnyView(Circle())
         }
@@ -92,11 +104,15 @@ public struct ConfettiCannon: View {
         for confetti in confettis{
             for color in colors{
                 switch confetti {
-                case .shape(_):
+                case .shape:
                     shapes.append(AnyView(confetti.view.foregroundColor(color).frame(width: confettiSize, height: confettiSize, alignment: .center)))
-                case .image(_):
+                case .image:
                     shapes.append(AnyView(confetti.view.frame(maxWidth:confettiSize, maxHeight: confettiSize)))
-                default:
+#if canImport(UIKit)
+                case .uiImage:
+                    shapes.append(AnyView(confetti.view.frame(maxWidth:confettiSize, maxHeight: confettiSize)))
+#endif
+                case .text, .sfSymbol:
                     shapes.append(AnyView(confetti.view.foregroundColor(color).font(.system(size: confettiSize))))
                 }
             }
